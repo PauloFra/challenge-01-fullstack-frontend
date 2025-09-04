@@ -1,93 +1,235 @@
-# Main Frontend -
+# Main Frontend
 
-Frontend principal da aplicação , responsável pelo login de administrador e por hospedar os microfrontends.
+## O que é esta aplicação?
+
+Esta é a aplicação principal do sistema, feita com React, TypeScript e Vite. Ela cuida do login do administrador e compartilha informações do usuário logado com os outros módulos (microfrontends) usando Module Federation.
+
+### O que ela faz?
+
+- Cuidar do login do administrador
+- Manter as informações do usuário logado
+- Compartilhar dados com os outros módulos
+- Navegar entre diferentes partes do sistema
+- Interface moderna que funciona em qualquer tela
 
 ## Tecnologias Utilizadas
 
-- React 18 com TypeScript
-- Vite.js
-- Module Federation para microfrontends
-- Material UI para componentes
-- Zustand para gerenciamento de estado
-- React Router para navegação
+- **React.js**: Biblioteca para construção de interfaces
+- **TypeScript**: Linguagem de programação tipada
+- **Vite.js**: Build tool e dev server
+- **Module Federation**: Sistema de microfrontends
+- **Material-UI**: Biblioteca de componentes
+- **Zustand**: Gerenciamento de estado
+- **React Router**: Roteamento
+- **Vitest**: Framework de testes
+
+## Instalação e Execução
+
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Docker (opcional)
+
+### Instalação Local
+
+1. Clone o repositório:
+
+```bash
+git clone <url-do-repositorio-main-frontend>
+cd main-frontend
+```
+
+2. Instale as dependências:
+
+```bash
+npm install
+```
+
+3. Configure as variáveis de ambiente:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com as configurações:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000
+VITE_USERS_FRONTEND_URL=http://localhost:8081
+VITE_FINANCE_FRONTEND_URL=http://localhost:8082
+```
+
+4. Execute a aplicação:
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build
+npm run preview
+```
+
+### Execução com Docker
+
+```bash
+# Build da imagem
+docker build -t main-frontend .
+
+# Execução do container
+docker run -p 8080:80 main-frontend
+```
+
+## Testes
+
+### Executar Todos os Testes
+
+```bash
+npm run test
+```
+
+### Executar Testes em Modo Watch
+
+```bash
+npm run test:watch
+```
+
+### Executar Testes com Cobertura
+
+```bash
+npm run test:coverage
+```
+
+### Executar Testes de UI
+
+```bash
+npm run test:ui
+```
+
+## Module Federation
+
+### Configuração
+
+O Module Federation está configurado para compartilhar componentes e dados com os microfrontends:
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  plugins: [
+    federation({
+      name: "main-frontend",
+      remotes: {
+        "users-frontend": "http://localhost:8081/assets/remoteEntry.js",
+        "finance-frontend": "http://localhost:8082/assets/remoteEntry.js",
+      },
+      shared: ["react", "react-dom", "@mui/material"],
+    }),
+  ],
+});
+```
+
+### Componentes Compartilhados
+
+- Layout principal
+- Sistema de autenticação
+- Contexto de usuário
+- Componentes de navegação
 
 ## Estrutura do Projeto
 
 ```
 src/
-├── api/            # Configuração do cliente de API
-├── components/     # Componentes reutilizáveis
-├── pages/          # Páginas da aplicação
-├── stores/         # Stores para gerenciamento de estado
-├── styles/         # Estilos globais e temas
-└── types/          # Definições de tipos
+├── api/                  # Cliente da API
+│   └── apiClient.ts
+├── components/           # Componentes compartilhados
+│   ├── Layout.tsx
+│   └── PrivateRoute.tsx
+├── pages/               # Páginas da aplicação
+│   ├── Dashboard.tsx
+│   └── LoginPage.tsx
+├── stores/              # Gerenciamento de estado
+│   └── authStore.ts
+├── styles/              # Estilos e temas
+│   ├── index.css
+│   └── theme.ts
+├── types/               # Definições de tipos
+│   ├── auth.ts
+│   └── remote.d.ts
+├── App.tsx              # Componente principal
+└── main.tsx            # Ponto de entrada
 ```
 
-## Requisitos
+## Páginas Disponíveis
 
-- Node.js 18+
-- npm ou yarn
+### Login
 
-## Instalação
+- Autenticação de administrador
+- Validação de credenciais
+- Redirecionamento após login
 
-```bash
-# Instalar dependências
-npm install
+### Dashboard
+
+- Visão geral do sistema
+- Navegação para microfrontends
+- Informações do usuário logado
+
+## Scripts Disponíveis
+
+- `npm run dev` - Iniciar servidor de desenvolvimento
+- `npm run build` - Build para produção
+- `npm run preview` - Preview da build
+- `npm run lint` - Executar linter
+- `npm run lint:fix` - Corrigir problemas do linter
+- `npm run test` - Executar testes
+- `npm run test:watch` - Executar testes em modo watch
+- `npm run test:coverage` - Executar testes com cobertura
+- `npm run test:ui` - Executar testes de UI
+
+## Configuração do Module Federation
+
+### Exposição de Componentes
+
+```typescript
+// Componentes expostos para microfrontends
+export { Layout } from "./components/Layout";
+export { PrivateRoute } from "./components/PrivateRoute";
+export { useAuthStore } from "./stores/authStore";
 ```
 
-## Configuração
+### Importação de Microfrontends
 
-Crie um arquivo `.env` na raiz do projeto com as variáveis:
-
-```
-VITE_API_URL=http://localhost:3000
-```
-
-## Desenvolvimento
-
-```bash
-# Iniciar servidor de desenvolvimento
-npm run dev
+```typescript
+// Importação dinâmica de microfrontends
+const UsersPage = lazy(() => import("users-frontend/UsersPage"));
+const FinancePage = lazy(() => import("finance-frontend/FinancePage"));
 ```
 
-## Build
+## Autenticação
 
-```bash
-# Gerar build de produção
-npm run build
+### Fluxo de Login
 
-# Visualizar build localmente
-npm run preview
-```
+1. Usuário acessa a página de login
+2. Credenciais são validadas contra a API
+3. Token JWT é armazenado no estado global
+4. Usuário é redirecionado para o dashboard
 
-## Testes
+### Gerenciamento de Estado
 
-```bash
-# Executar testes unitários
-npm test
+- Zustand para gerenciamento de estado
+- Persistência do token de autenticação
+- Compartilhamento do estado com microfrontends
 
-# Acompanhar testes em tempo real
-npm run test:watch
+## Contribuição
 
-# Verificar cobertura de testes
-npm run test:coverage
-```
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-## Docker
+## Licença
 
-```bash
-# Construir a imagem
-docker build -t main-frontend .
-
-# Executar o container
-docker run -p 8080:80 main-frontend
-```
-
-## Integração com Microfrontends
-
-Este projeto utiliza Module Federation para carregar dinamicamente os microfrontends:
-
-- **top-users-frontend**: Interface para gerenciamento de usuários
-- **top-finance-frontend**: Interface para gerenciamento financeiro
-
-Cada microfrontend é carregado sob demanda quando o usuário navega para a rota correspondente.
+Este projeto está sob a licença MIT.

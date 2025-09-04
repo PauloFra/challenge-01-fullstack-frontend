@@ -1,81 +1,271 @@
-# Top Users Microfrontend -
+# Top Users Frontend
 
-Microfrontend para gerenciamento de usuários do sistema .
+## Descrição do Serviço
+
+O Top Users Frontend é um microfrontend desenvolvido em React.js com TypeScript e Vite.js que fornece uma interface completa para gerenciamento de usuários. Esta aplicação utiliza Module Federation para integração com o frontend principal e oferece operações CRUD completas para a entidade User.
+
+### Funcionalidades
+
+- CRUD completo de usuários
+- Interface responsiva e moderna
+- Validação de formulários
+- Filtros e busca avançada
+- Paginação de resultados
+- Integração com Module Federation
+
+### Entidade User
+
+- **nome** (string): Nome completo do usuário
+- **email** (string): Email único do usuário
+- **rua** (string): Endereço - rua
+- **numero** (string): Endereço - número
+- **bairro** (string): Endereço - bairro
+- **complemento** (string): Endereço - complemento
+- **cidade** (string): Endereço - cidade
+- **estado** (string): Endereço - estado
+- **cep** (string): CEP do endereço
+- **status** (enum): Status do usuário (ativo, inativo)
 
 ## Tecnologias Utilizadas
 
-- React 18 com TypeScript
-- Vite.js
-- Module Federation para microfrontends
-- Material UI para componentes
-- React Hook Form para formulários
-- Axios para requisições HTTP
+- **React.js**: Biblioteca para construção de interfaces
+- **TypeScript**: Linguagem de programação tipada
+- **Vite.js**: Build tool e dev server
+- **Module Federation**: Sistema de microfrontends
+- **Material-UI**: Biblioteca de componentes
+- **React Hook Form**: Gerenciamento de formulários
+- **React Query**: Gerenciamento de estado do servidor
+- **Vitest**: Framework de testes
+
+## Instalação e Execução
+
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Docker (opcional)
+
+### Instalação Local
+
+1. Clone o repositório:
+
+```bash
+git clone <url-do-repositorio-top-users-frontend>
+cd top-users-frontend
+```
+
+2. Instale as dependências:
+
+```bash
+npm install
+```
+
+3. Configure as variáveis de ambiente:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com as configurações:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000
+VITE_MAIN_FRONTEND_URL=http://localhost:8080
+```
+
+4. Execute a aplicação:
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build
+npm run preview
+```
+
+### Execução com Docker
+
+```bash
+# Build da imagem
+docker build -t top-users-frontend .
+
+# Execução do container
+docker run -p 8081:80 top-users-frontend
+```
+
+## Testes
+
+### Executar Todos os Testes
+
+```bash
+npm run test
+```
+
+### Executar Testes em Modo Watch
+
+```bash
+npm run test:watch
+```
+
+### Executar Testes com Cobertura
+
+```bash
+npm run test:coverage
+```
+
+### Executar Testes de UI
+
+```bash
+npm run test:ui
+```
+
+## Module Federation
+
+### Configuração
+
+O Module Federation está configurado para expor componentes e importar dependências compartilhadas:
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  plugins: [
+    federation({
+      name: "top-users-frontend",
+      exposes: {
+        "./UsersPage": "./src/components/UsersPage.tsx",
+        "./UserForm": "./src/components/UserForm.tsx",
+        "./UsersList": "./src/components/UsersList.tsx",
+      },
+      shared: ["react", "react-dom", "@mui/material"],
+    }),
+  ],
+});
+```
+
+### Componentes Expostos
+
+- `UsersPage`: Página principal de gerenciamento de usuários
+- `UserForm`: Formulário para criação/edição de usuários
+- `UsersList`: Lista de usuários com filtros e paginação
 
 ## Estrutura do Projeto
 
 ```
 src/
-├── api/             # Serviços para comunicação com a API
-├── components/      # Componentes React
-├── hooks/           # Hooks personalizados
-└── types/           # Definições de tipos
+├── api/                  # Cliente da API
+│   └── usersApi.ts
+├── components/           # Componentes da aplicação
+│   ├── UsersPage.tsx
+│   ├── UserForm.tsx
+│   ├── UsersList.tsx
+│   ├── UserCard.tsx
+│   └── DeleteConfirmation.tsx
+├── hooks/               # Custom hooks
+│   └── useUsers.ts
+├── types/               # Definições de tipos
+│   └── index.ts
+├── main.tsx            # Ponto de entrada
+└── vite-env.d.ts       # Tipos do Vite
 ```
 
-## Requisitos
+## Páginas e Componentes
 
-- Node.js 18+
-- npm ou yarn
+### UsersPage
 
-## Instalação
+- Página principal de gerenciamento de usuários
+- Integração com Module Federation
+- Navegação e layout responsivo
 
-```bash
-# Instalar dependências
-npm install
+### UserForm
+
+- Formulário para criação e edição de usuários
+- Validação de campos
+- Integração com API
+
+### UsersList
+
+- Lista de usuários com paginação
+- Filtros de busca
+- Ações de edição e exclusão
+
+## API Integration
+
+### Endpoints Utilizados
+
+- `GET /users` - Listar usuários
+- `GET /users/:id` - Buscar usuário por ID
+- `POST /users` - Criar usuário
+- `PUT /users/:id` - Atualizar usuário
+- `DELETE /users/:id` - Deletar usuário
+
+### Custom Hooks
+
+```typescript
+// useUsers.ts
+export const useUsers = () => {
+  // Hook para gerenciar estado dos usuários
+  // Integração com React Query
+  // Cache e sincronização automática
+};
 ```
 
-## Desenvolvimento
+## Scripts Disponíveis
 
-```bash
-# Iniciar servidor de desenvolvimento
-npm run dev
-```
+- `npm run dev` - Iniciar servidor de desenvolvimento
+- `npm run build` - Build para produção
+- `npm run preview` - Preview da build
+- `npm run lint` - Executar linter
+- `npm run lint:fix` - Corrigir problemas do linter
+- `npm run test` - Executar testes
+- `npm run test:watch` - Executar testes em modo watch
+- `npm run test:coverage` - Executar testes com cobertura
+- `npm run test:ui` - Executar testes de UI
 
-## Build
+## Validação de Formulários
 
-```bash
-# Gerar build de produção
-npm run build
+### Campos Obrigatórios
 
-# Visualizar build localmente
-npm run preview
-```
+- Nome (mínimo 2 caracteres)
+- Email (formato válido)
+- Rua
+- Número
+- Bairro
+- Cidade
+- Estado
+- CEP (formato válido)
 
-## Testes
+### Validações Específicas
 
-```bash
-# Executar testes unitários
-npm test
+- Email único no sistema
+- CEP válido (formato brasileiro)
+- Status (ativo/inativo)
 
-# Acompanhar testes em tempo real
-npm run test:watch
+## Funcionalidades Avançadas
 
-# Verificar cobertura de testes
-npm run test:coverage
-```
+### Filtros
 
-## Docker
+- Busca por nome
+- Filtro por status
+- Filtro por cidade
+- Ordenação por campos
 
-```bash
-# Construir a imagem
-docker build -t top-users-frontend .
+### Paginação
 
-# Executar o container
-docker run -p 8081:80 top-users-frontend
-```
+- Configurável (10, 25, 50 itens por página)
+- Navegação entre páginas
+- Indicador de total de registros
 
-## Integração com Module Federation
+## Contribuição
 
-Este projeto utiliza Module Federation para ser carregado dinamicamente pela aplicação principal. Ele expõe os seguintes módulos:
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-- `./UsersPage`: Componente principal para gerenciamento de usuários
-- `./remoteTypes`: Tipos compartilhados entre os projetos
+## Licença
+
+Este projeto está sob a licença MIT.
